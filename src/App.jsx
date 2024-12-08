@@ -1,9 +1,12 @@
+import AllRoutes from './Navigation/router';
+import { BrowserRouter as Router } from "react-router-dom";
 function App() {
+
     return (
-        <h1 className="text-lg">
-            Task Management App
-        </h1>
-    )
+        <Router>
+            <AllRoutes />
+        </Router>
+    );
 }
 
 export default App;
