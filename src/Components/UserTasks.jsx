@@ -11,11 +11,10 @@ import { addTask, deleteUserTask, editUserTask, markTaskCompleted } from '../Red
 import ButtonComponent from '../BasicComponent/ButtonComponent';
 
 const UserTasks = () => {
+    let navigate = useNavigate();
     let store = useSelector(d => d.user);
     let loggedUserTask = store?.signedUsers?.filter((d => d.name === store.loggedInUser));
-    // console.log('logedUserTask[0]?.tasks', loggedUserTask[0]?.tasks)
     let dispatch = useDispatch();
-    let navigate = useNavigate();
 
     const [state, setState] = useState({
         updateTask: {
@@ -26,7 +25,7 @@ const UserTasks = () => {
             title: "",
             description: ""
         },
-
+        taskInputError: {},
         deleteAlert: {
             key: false,
             id: ''
@@ -65,24 +64,134 @@ const UserTasks = () => {
     }
 
     //onchange input update new task
-    const updateNewTask = (key, e) => {
+    const updateNewTask = (key, data) => {
         setState((prev) => {
             return {
                 ...prev,
                 taskInput: {
                     ...prev.taskInput,
-                    [key]: e
+                    [key]: data
                 }
             };
         });
-    }
 
+        if (key === 'title') {
+            if (!data) {
+                setState((prev) => {
+                    return {
+                        ...prev,
+                        taskInputError: {
+                            title: "Please enter task title.",
+                        },
+                    };
+                });
+                return false;
+            }
+
+            if (data.length < 2 || data.length > 15) {
+                setState((prev) => {
+                    return {
+                        ...prev,
+                        taskInputError: {
+                            title: "Required  2 to 15 characters.",
+                        },
+                    };
+                });
+                return false;
+            }
+
+            setState((prev) => {
+                return {
+                    ...prev,
+                    taskInputError: { title: null },
+                };
+            });
+        }
+        if (key === 'description') {
+            if (!data) {
+                setState((prev) => {
+                    return {
+                        ...prev,
+                        taskInputError: {
+                            description: "Please enter task title.",
+                        },
+                    };
+                });
+                return false;
+            }
+
+            if (data.length < 2 || data.length > 30) {
+                setState((prev) => {
+                    return {
+                        ...prev,
+                        taskInputError: {
+                            description: "Required  2 to 30 characters.",
+                        },
+                    };
+                });
+                return false;
+            }
+
+            setState((prev) => {
+                return {
+                    ...prev,
+                    taskInputError: { description: null },
+                };
+            });
+        }
+    }
 
     //update new task to list
     const addNewTask = (e) => {
         e.preventDefault();
         let { title, description } = state.taskInput;
-        if (title.trim() === "" || description.trim() === "") return;
+
+        if (!title) {
+            setState((prev) => {
+                return {
+                    ...prev,
+                    taskInputError: {
+                        title: "Title can not be empty.",
+                    },
+                };
+            });
+            return false;
+        }
+        if (title.length < 2 || title.length > 15) {
+            setState((prev) => {
+                return {
+                    ...prev,
+                    taskInputError: {
+                        title: "Required  2 to 15 characters.",
+                    },
+                };
+            });
+            return false;
+        }
+
+        if (!description) {
+            setState((prev) => {
+                return {
+                    ...prev,
+                    taskInputError: {
+                        description: "Description can not be empty.",
+                    },
+                };
+            });
+            return false;
+        }
+        if (description.length < 2 || description.length > 30) {
+            setState((prev) => {
+                return {
+                    ...prev,
+                    taskInputError: {
+                        description: "Required  2 to 30 characters.",
+                    },
+                };
+            });
+            return false;
+        }
+
         const newTask = { id: Date.now(), title: title, description: description, completed: false };
         setState((prev) => {
             return {
@@ -91,7 +200,6 @@ const UserTasks = () => {
                     title: "",
                     description: ""
                 },
-
             }
         })
         dispatch(addTask(newTask));
@@ -155,17 +263,15 @@ const UserTasks = () => {
         openNewTaskDialog(false, {});
     }
 
-
     let { title, description } = state.taskInput;
     return (
         <>
             {
                 store.loggedInUser &&
-                <h1 className='text-xl font-bold text-[#6930CA]'>Welcome, {store.loggedInUser}</h1>
+                <h1 className='text-3xl font-bold text-[#6930CA]'>Welcome, {store.loggedInUser}</h1>
             }
             <AppWrapper>
-                <div className='rounded-xl p-4 lg:p-6 shadow-lg border border-purple-500/20 mt-5'>
-
+                <div className='rounded-xl p-4 lg:p-6 shadow-lg border border-purple-500/20 mt-5 bg-white'>
                     <div className='flex justify-between items-center mb-6'>
                         <h1 className='text-xl '> All Tasks </h1>
                         <button onClick={() => openNewTaskDialog(true, {})} className='bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-[#FFFFFF] px-4 py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 gap-1'> <Plus size={22} strokeWidth={3} /> <span className='hidden sm:flex'>New Task</span> </button>
@@ -183,7 +289,7 @@ const UserTasks = () => {
                                         </div>
                                         <div className='flex mt-1 lg:m-0 md:m-0 items-center space-x-2'>
                                             <button onClick={() => task.completed ? null : handleToggleComplete(task.id)} className={`p-3   ${task.completed ? ' text-gray-500 bg-gray-500/20 hover:bg-gray-500/30 cursor-not-allowed' : ' text-green-500 bg-green-500/20 hover:bg-green-500/30 transition-colors duration-300'}  rounded-lg `}><CircleCheck size={20} strokeWidth={2} /></button>
-                                            <button onClick={() => openNewTaskDialog(true, task)} className={`p-3  ${task.completed ? ' text-gray-500 bg-gray-500/20 hover:bg-gray-500/30 cursor-not-allowed' : 'bg-blue-500/20 text-blue-500  hover:bg-blue-500/30 transition-colors duration-300'} rounded-lg`}> <Pencil size={20} strokeWidth={2} /></button>
+                                            <button onClick={() => task.completed ? null : openNewTaskDialog(true, task)} className={`p-3  ${task.completed ? ' text-gray-500 bg-gray-500/20 hover:bg-gray-500/30 cursor-not-allowed' : 'bg-blue-500/20 text-blue-500  hover:bg-blue-500/30 transition-colors duration-300'} rounded-lg`}> <Pencil size={20} strokeWidth={2} /></button>
                                             <button onClick={() => openDeleteAlertDialog(true, task.id)} className='p-3 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition-colors duration-300'><Trash size={20} strokeWidth={2} /></button>
                                         </div>
                                     </div>
@@ -196,7 +302,7 @@ const UserTasks = () => {
                             </div>
                     }
                 </div>
-            </AppWrapper >
+            </AppWrapper>
             <DialogComponent
                 isOpen={state?.updateTask.open}
                 onClose={() => openNewTaskDialog(false, {})}
@@ -211,6 +317,7 @@ const UserTasks = () => {
                         onChange={(e) => updateNewTask('title', e)}
                         onSave={addNewTask}
                         autoFocus={true}
+                        error={state.taskInputError.title}
                     />
 
                     <InputComponent
@@ -220,6 +327,7 @@ const UserTasks = () => {
                         onChange={(e) => updateNewTask('description', e)}
                         onSave={addNewTask}
                         autoFocus={true}
+                        error={state.taskInputError.description}
                     />
 
                     <div className="grid grid-cols-2 gap-3 w-[80%] mx-auto mt-5">
@@ -240,7 +348,7 @@ const UserTasks = () => {
                             Cancel
                         </button>
                         <button onClick={(e) => Object.keys(state.updateTask.data).length ? editTask(e, state.updateTask.data.id) : addNewTask(e)} className=" text-[#FFFFFF] px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
-                            {`${Object.keys(state.updateTask.data).length ? 'update Task' : 'Add Task'}`}
+                            {`${Object.keys(state.updateTask.data).length ? 'Update Task' : 'Add Task'}`}
                         </button>
                     </div>
                 </div>

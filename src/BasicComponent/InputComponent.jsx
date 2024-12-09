@@ -37,7 +37,7 @@ const InputComponent = ({ autoFocus, onSave, type, placeholder, value, onChange,
                     }}
                     ref={inputRef}
                     autoComplete="one-time-code"
-                    className={`text-md appearance-none border-[1.5px] border-[#D1D1D1] rounded-md px-4 py-2 w-full leading-tight focus:outline-none focus:border-blue-500`}
+                    className={`text-md appearance-none border-[1.5px] border-[#D1D1D1] rounded-md px-3 py-2 w-full leading-tight focus:outline-none focus:border-blue-500`}
                     maxLength={maxLength}
                     minLength={minLength}
                     disabled={disabled}
