@@ -7,7 +7,7 @@
 - React + Vite
 - Redux-Toolkit
 - React Router Dom
-- Lucide
+- Lucide Icons
 - Vercel for deployment
 
 ### Installation:
@@ -24,4 +24,5 @@
     - yarn dev
 
 ### Live Demo
+    https://task-management-app-rljv.vercel.app/
 
