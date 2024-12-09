@@ -24,5 +24,5 @@
     - yarn dev
 
 ### Live Demo
-    https://task-management-app-rljv.vercel.app/
+https://task-management-app-rljv.vercel.app/
 
